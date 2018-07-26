@@ -1,4 +1,5 @@
 'use strict';
+
 function openMail() {
   const values = ['Открыть', 'Закрыть'];
   const btn = document.getElementById('open');
