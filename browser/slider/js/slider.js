@@ -10,3 +10,12 @@ let arrImg = [
 comst slider =document.getElementById('slider');
 let step = 0
 
+function sliderShow() {
+	if(step === arrImg.length){
+		step = 0; 
+	}
+	slider.src = `i/${arrImg[step]}`;
+	step +=1;
+};
+
+setInterval(sliderShow, 4000);
