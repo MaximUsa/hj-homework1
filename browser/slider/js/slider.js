@@ -7,7 +7,7 @@ let arrImg = [
 'airmax-top-view.png',
 'airmax.png'];
 
-comst slider =document.getElementById('slider');
+const slider = document.getElementById('slider');
 let step = 0
 
 function sliderShow() {
