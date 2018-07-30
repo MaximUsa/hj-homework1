@@ -20,7 +20,7 @@ setTrack(trackNum);
 
 function setTrack(n) {
 	const prevTrackPaused = audio.paused;
-	audio.src = 'mp3/' + tracks[n] + 'mp3';
+	audio.src = 'mp3/' + tracks[n] + '.mp3';
 	titleTr.title = tracks[n];
 	if (!prevTrackPaused) {
 		play();
