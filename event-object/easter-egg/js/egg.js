@@ -20,7 +20,7 @@ function eggs() {
 function navVisi() {
     if (event.ctrlKey && event.altKey && event.code === 'KeyT') {
         nav.classList.toggle('visible');
-     } // else {
+    } // else {
     //     nav.classList.remove('visible');
     // }
 }
