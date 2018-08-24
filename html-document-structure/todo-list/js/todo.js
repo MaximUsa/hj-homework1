@@ -8,12 +8,12 @@ const inputs = main.querySelectorAll('input');
 function list() {
     console.log(this.hasAttribute('checked'))
 
-    if (this.hasAttribute('checked')) {
-        undone.appendChild(this.parentElement)
-        this.removeAttribute('checked')
+    if (this.checked) {
+        done.appendChild(this.parentElement)
+        //this.removeAttribute('checked')
     } else {
-        done.appendChild(this.parentElement);
-        this.setAttribute('checked', true);
+        undone.appendChild(this.parentElement);
+        //this.setAttribute('checked', true);
     }
 }
 
