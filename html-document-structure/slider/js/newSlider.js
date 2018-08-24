@@ -1,6 +1,6 @@
 'use strict';
 
-const slider = document.querySelector('.slider'); 
+const slider = document.querySelector('.slider');
 let activeSlide = slider.getElementsByClassName('slide')[0];
 activeSlide.classList.add('slide-current');
 
@@ -10,16 +10,13 @@ const nextButton = sliderNav.querySelector('[data-action=next]');
 const firstButton = sliderNav.querySelector('[data-action=first]');
 const lastButton = sliderNav.querySelector('[data-action=last]');
 
-
 prevButton.addEventListener('click', showSlide);
 firstButton.addEventListener('click', showSlide);
 nextButton.addEventListener('click', showSlide);
 lastButton.addEventListener('click', showSlide);
-updateSliderNav();
+updateSlider();
 
-
-
-function updateSliderNav() {
+function updateSlider() {
 
     if (activeSlide.previousElementSibling) {
         prevButton.classList.remove('disabled');
@@ -39,7 +36,6 @@ function updateSliderNav() {
     }
 }
 
-
 function showSlide(event) {
 
     const btnDisabled = event.currentTarget.classList.contains('disabled');
@@ -47,7 +43,6 @@ function showSlide(event) {
 
         return;
     }
-
 
     activeSlide.classList.remove('slide-current');
     switch (event.currentTarget) {
@@ -66,5 +61,5 @@ function showSlide(event) {
     }
 
     activeSlide.classList.add('slide-current');
-    updateSliderNav();
+    updateSlider();
 }
