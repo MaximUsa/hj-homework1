@@ -16,14 +16,14 @@ Array.from(contents).forEach((article, index) => {
 });
 
 tabs.removeChild(tabFirst);
-tabs.firstElementChild.classList.add('ul-tabs-active');
+tabs.firstElementChild.classList.add('ui-tabs-active');
 
 Array.from(tabChild).forEach(tab => tab.addEventListener('click', tabActiv));
 
 function tabActiv(event) {
-    const currentTab = document.querySelector('.ul-tabs-active');
-    currentTab.classList.remove('ul-tabs-active');
-    event.currentTarget.classList.add('ul-tabs-active');
+    const currentTab = document.querySelector('.ui-tabs-active');
+    currentTab.classList.remove('ui-tabs-active');
+    event.currentTarget.classList.add('ui-tabs-active');
 
     Array.from(contents).forEach(article => {
         article.classList.add('hidden');
