@@ -10,7 +10,7 @@ const btn = document.querySelector('div.controls');
 const list = document.querySelector('div.list');
 document.addEventListener('DOMContentLoaded', () => {
     navigator.mediaDevices
-        .getUserMedia({video: true, audio: false})
+        .getUserMedia({ video: true, audio: false })
         .then(stream => {
             btn.style.display = 'block';
             video.autoplay = true;
@@ -45,9 +45,9 @@ function listPhoto(url) {
     } else {
         list.appendChild(pic);
     }
-    list.querySelectorAll('figcaption > a')[2].addEventListener('click', deletePic);
+    list.querySelectorAll('figcaption > a')[2].addEventListener('click', removePic);
 
-    list.querySelectorAll('figcaption > a')[1].addEventListener('click', upload);
+    list.querySelectorAll('figcaption > a')[1].addEventListener('click', savePic);
 }
 
 Array.from(list.querySelectorAll('figure')).forEach(el => {
@@ -57,7 +57,7 @@ Array.from(list.querySelectorAll('figure')).forEach(el => {
     })
 });
 
-function upload(event) {
+function savePic(event) {
     event.preventDefault();
     const xhr = new XMLHttpRequest();
     xhr.addEventListener('load', event => console.log(event.responseText));
@@ -70,7 +70,7 @@ function upload(event) {
     });
 }
 
-function deletePic(event) {
+function removePic(event) {
     event.preventDefault();
     console.log(event.currentTarget.parentElement.parentElement);
     list.removeChild(event.currentTarget.parentElement.parentElement);
