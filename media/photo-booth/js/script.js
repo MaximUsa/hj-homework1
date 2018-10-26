@@ -1,158 +1,77 @@
 'use strict';
 
-const fotoAppBlock = document.querySelector('.app');
-const fotoCtrlBlock = document.querySelector('.controls');
-const takeFotoBtn = document.getElementById('take-photo');
-const errorMsgBox = document.getElementById('error-message');
-const fotoList = document.querySelector('.list');
-const fotoBoothApiUrl = 'https://neto-api.herokuapp.com/photo-booth';
-const requestOptions = {
-    method: 'POST',
-    'Content-Type': 'multipart/form-data'
-};
+let video = document.createElement('video');
+let app = document.querySelector('.app');
+app.appendChild(video);
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
 
-let makeFotoSound;
-let errorChecking = false;
-
-(function() {
-    sendImage('');
-})();
-
-(function() {
+const btn = document.querySelector('div.controls');
+const list = document.querySelector('div.list');
+document.addEventListener('DOMContentLoaded', () => {
     navigator.mediaDevices
-        .getUserMedia({ video: true, audio: false })
+        .getUserMedia({video: true, audio: false})
         .then(stream => {
-            const video = document.createElement('video');
-            video.src = URL.createObjectURL(stream);
-            video.id = 'video-stream';
-            if (!errorChecking) {
-                fotoAppBlock.appendChild(video);
-                fotoBlock.classList.add('visible');
-            }
+            btn.style.display = 'block';
+            video.autoplay = true;
+            video.srcObject = new MediaStream(stream);
         })
-        .catch(error => {
-            errorChecking = true;
-            errorMsgBox.textContent = 'Нет доступа к камере';
-            errorMsgBox.classList.add('visible');
-            console.error(error);
-        });
-})();
-
-(function() {
-    makeFotoSound = document.createElement('audio');
-    makeFotoSound.src = './audio/click.mp3';
-    document.body.appendChild(makeFotoSound);
-})();
-
-takeFotoBtn.addEventListener('click', event => {
-    try {
-        const video = document.getElementById('video-stream');
-
-        if (!video) {
-            throw new Error('Не удалось найти видео-поток');
-        }
-
-        const canvas = document.createElement('canvas');
-        const canvasContext = canvas.getContext('2d');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvasContext.drawImage(video, 0, 0);
-        const imageUrl = canvas.toDataURL();
-        const imageHtml = captureImage(imageUrl);
-
-        if (!fotoList.childNodes.length) {
-            fotoList.appendChild(imageHtml);
-        } else {
-            fotoList.insertBefore(imageHtml, fotoList.childNodes[0]);
-        }
-        makeFotoSound.play();
-
-    } catch (e) {
-        console.log('Возникла ошибка: ', e.message);
-    }
+        .catch(err => document.getElementById('error-message').textContent = err);
 });
 
-function captureImage(imgPath) {
-    const figure = document.createElement('figure');
-    const img = document.createElement('img');
-    const figcaption = document.createElement('figcaption');
-    const anchor = document.createElement('a');
-    const icon = document.createElement('i');
-    icon.classList.add('material-icons');
-    const anchorDownload = anchor.cloneNode();
-    const anchorUpload = anchor.cloneNode();
-    const anchorDelete = anchor.cloneNode();
-    const iconDownload = icon.cloneNode();
-    const iconUpload = icon.cloneNode();
-    const iconDelete = icon.cloneNode();
-    img.src = imgPath;
+btn.firstElementChild.addEventListener('click', event => {
+    event.preventDefault();
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    let picSRC = canvas.toDataURL();
+    listPhoto(picSRC);
+});
 
-    iconDownload.textContent = 'file_download';
-    anchorDownload.href = imgPath;
-    anchorDownload.download = 'snapshot.png';
-    anchorDownload.appendChild(iconDownload);
+function listPhoto(url) {
+    let pic = document.createElement('figure');
+    pic.innerHTML = `
+  <img src="${url}">
+  <figcaption>
+    <a href="${url}" download="snapshot.png">
+      <i class="material-icons">file_download</i>
+    </a>
+    <a><i class="material-icons">file_upload</i></a>
+    <a><i class="material-icons">delete</i></a>
+    </figcaption>
+    `;
+    if (list.firstElementChild) {
+        list.insertBefore(pic, list.firstElementChild);
+    } else {
+        list.appendChild(pic);
+    }
+    list.querySelectorAll('figcaption > a')[2].addEventListener('click', deletePic);
 
-    iconUpload.textContent = 'file_upload';
-    anchorUpload.appendChild(iconUpload);
-
-    iconDelete.textContent = 'delete';
-    anchorDelete.appendChild(iconDelete);
-    [anchorDownload, anchorUpload, anchorDelete].forEach(node => {
-        figcaption.appendChild(node);
-    });
-    figure.appendChild(img);
-    figure.appendChild(figcaption);
-
-    anchorDownload.addEventListener('click', event => {
-        event.currentTarget.style.display = 'none';
-    });
-
-    anchorUpload.addEventListener('click', event => {
-        const clickedBtn = event.currentTarget;
-        const response = sendImage(imgPath);
-
-        response
-            .then(apiResponse => clickedBtn.style.display = 'none')
-            .catch(console.error);
-    });
-
-    anchorDelete.addEventListener('click', event => {
-        figure.remove();
-    });
-
-    return figure;
+    list.querySelectorAll('figcaption > a')[1].addEventListener('click', upload);
 }
 
-function sendImage(imageSrc) {
-    return fetch(imageSrc)
-        .then(response => response.blob())
-        .then(imageBlob => {
-            const sendingOptions = Object.assign({}, requestOptions);
-            const requestData = new FormData();
+Array.from(list.querySelectorAll('figure')).forEach(el => {
+    el.addEventListener('mouseover', event => {
+        event.preventDefault();
+        el.querySelector('figcaption').style.visibility = 'visible';
+    })
+});
 
-            requestData.append('image', imageBlob);
-            sendingOptions.body = requestData;
-            return fetch(fotoBoothApiUrl, sendingOptions);
-        })
-        .then(apiResponse => {
-            if (apiResponse.status < 200 || apiResponse.status >= 300) {
-                throw new Error('API availability issues');
-            }
+function upload(event) {
+    event.preventDefault();
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener('load', event => console.log(event.responseText));
+    xhr.addEventListener('error', e => console.error(e));
+    xhr.open('POST', 'https://neto-api.herokuapp.com/photo-booth', true);
+    let formData = new FormData();
+    canvas.toBlob(blob => {
+        formData.append('image', blob);
+        xhr.send(formData);
+    });
+}
 
-            return new Promise((done, fail) => {
-                try {
-                    done(apiResponse);
-                } catch (e) {
-                    fail(e);
-                }
-            });
-        })
-        .catch(error => {
-            errorChecking = true;
-            errorMsgBox.textContent = 'Проблема с доступностью API';
-            errorMsgBox.classList.add('visible');
-            console.error(error);
-
-            return false;
-        });
+function deletePic(event) {
+    event.preventDefault();
+    console.log(event.currentTarget.parentElement.parentElement);
+    list.removeChild(event.currentTarget.parentElement.parentElement);
 }
